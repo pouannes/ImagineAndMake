@@ -49,6 +49,12 @@ COCO_WEIGHTS_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
 # through the command line argument --logs
 DEFAULT_LOGS_DIR = os.path.join(ROOT_DIR, "logs")
 
+CLASSES_TO_NUMBER = {
+    'acier': 2,
+    'beton': 1,
+    'bois': 3
+}
+
 ############################################################
 #  Configurations
 ############################################################
@@ -137,13 +143,14 @@ class DetritechDataset(utils.Dataset):
             image_path = os.path.join(dataset_dir, a['filename'])
             image = skimage.io.imread(image_path)
             height, width = image.shape[:2]
+#             print(polygons)
 
             self.add_image(
                 "detritech",
                 image_id=a['filename'],  # use file name as a unique image id
                 path=image_path,
                 width=width, height=height,
-                polygons=polygons
+                polygons=polygons,
                 types=types)
 
     def load_mask(self, image_id):
@@ -168,7 +175,12 @@ class DetritechDataset(utils.Dataset):
             rr, cc = skimage.draw.polygon(p['all_points_y'], p['all_points_x'])
             mask[rr, cc, i] = 1
             
-        classes = np.asarray(info['types'], dtype=np.int32)
+        classes = np.asarray(
+            list(
+                map(lambda x: CLASSES_TO_NUMBER[x], info['types'])
+            ),
+            dtype=np.int32
+        )
 
         # Return mask, and array of class IDs of each instance. Since we have
         # one class ID only, we return an array of 1s
