@@ -3,7 +3,7 @@ from conversion import *
 import pyrebase
 
 config = {
-  "apiKey": "AIzaSyAx5QHALVtmfATVLiSTB_wnmRqc1cjjdac",
+  "apiKey": null,
   "authDomain": "detritech-fd3cd.firebaseapp.com",
   "databaseURL": "https://detritech-fd3cd.firebaseio.com",
   "storageBucket": "detritech-fd3cd.appspot.com"
