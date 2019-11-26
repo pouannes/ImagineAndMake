@@ -33,6 +33,9 @@ import json
 import datetime
 import numpy as np
 import skimage.draw
+import pyrebase
+import urllib.request
+
 
 # Root directory of the project
 ROOT_DIR = os.path.abspath("../../")
@@ -217,7 +220,41 @@ def train(model):
                 learning_rate=config.LEARNING_RATE,
                 epochs=10,
                 layers='heads')
+    
+config = {
+  "apiKey": "AIzaSyAx5QHALVtmfATVLiSTB_wnmRqc1cjjdac",
+  "authDomain": "detritech-fd3cd.firebaseapp.com",
+  "databaseURL": "https://detritech-fd3cd.firebaseio.com",
+  "storageBucket": "detritech-fd3cd.appspot.com"
+}
 
+firebase = pyrebase.initialize_app(config)
+
+db = firebase.database()
+storage = firebase.storage()
+
+def getAndDownloadImage(imageName):
+    '''
+    download image titled `imageName` for firebase storage at images/
+    '''
+    image_url = storage.child('images/' + imageName).get_url(token=imageName)
+    print(image_url)
+    urllib.request.urlretrieve(image_url, './images/' + imageName)
+    
+    
+
+def detect_waste():
+    
+    def stream_handler(message):
+    print('event: ' + message["event"]) # put
+    print('path: '  + message["path"]) # /-K7yGTTEp7O549EzTYtI
+    print('data: '  + message["data"]) # {'title': 'Pyrebase', "body": "etc..."}
+    #     getAndDownloadImage('mountains.jpg')
+    #     print('New Image reloaded')
+
+    my_stream = db.child("message").stream(stream_handler)
+    
+    
 
 # def color_splash(image, mask):
 #     """Apply color splash effect.
@@ -383,6 +420,8 @@ if __name__ == '__main__':
     # Train or evaluate
     if args.command == "train":
         train(model)
+    elif args.command == "detect":
+        detect_waste()
 #     elif args.command == "splash":
 #         detect_and_color_splash(model, image_path=args.image,
 #                                 video_path=args.video)
