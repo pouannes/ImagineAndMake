@@ -20,8 +20,8 @@ On this repo, you'll find:
 
 - The Deep Learning algorithm used. This is a fork of [Matterport's implementation of Mask RCNN](https://github.com/matterport/Mask_RCNN). Our own code is under `samples/detritech`.
 - A small visualisation website (built with React.js) under `visualisation/`.
-- The algorithm used to control the robot.
-- The code for the photo taking Android app.
+- The algorithm used to control the robot under `robot_controller`.
+- The code for the photo taking Android app under `android_app`.
 
 
 
