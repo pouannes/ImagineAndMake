@@ -30,15 +30,4 @@ def stream_handler(message):
         dechets = conversion_to_robot(dechets_l2)
         tri_dechet(dechets)
 
-#my_stream = db.child("coord").stream(stream_handler)
-
-dechets = "-234 -700 -230 -600 1#20 -481 29 -430 1"
-dechets_l1 = dechets.split("#")
-dechets_l2 = []
-print(dechets_l1)
-for i in range(len(dechets_l1)):
-  dechets_l2.append(list(map(int, dechets_l1[i].split())))
-dechets = conversion_to_robot(dechets_l2)
-tri_dechet(dechets)
-#dechets = conversion_to_robot(dechets)
-#tri_dechet(dechets)
+my_stream = db.child("coord").stream(stream_handler)
