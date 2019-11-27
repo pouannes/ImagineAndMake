@@ -8,13 +8,13 @@ x_ref = pos_ref[0]
 y_ref = pos_ref[1]
 z_ref = pos_ref[2]
 # rayon de la boule
-R = 1300
+R = 1100
 R_2 = R * R
 # rayon du cylindre central
-C = 450
+C = 400
 C_2 = C * C
 # hauteur du tapis
-z_tapis = 0
+z_tapis = 100
 # rayon du demi-disque accessible
 r_acces = sqrt((R_2 - z_tapis*z_tapis) / 2)
 
