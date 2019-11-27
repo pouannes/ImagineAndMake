@@ -32,6 +32,7 @@ import sys
 import json
 import datetime
 import numpy as np
+import matplotlib.pyplot as plt
 import skimage.draw
 import pyrebase
 import urllib.request
@@ -44,6 +45,8 @@ ROOT_DIR = os.path.abspath("../../")
 sys.path.append(ROOT_DIR)  # To find local version of the library
 from mrcnn.config import Config
 from mrcnn import model as modellib, utils
+from mrcnn import visualize
+from mrcnn.visualize import display_images
 
 # Path to trained weights file
 COCO_WEIGHTS_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
@@ -239,18 +242,73 @@ def getAndDownloadImage(imageName):
     '''
     image_url = storage.child('images/' + imageName).get_url(token=imageName)
     print(image_url)
-    urllib.request.urlretrieve(image_url, './images/' + imageName)
+    urllib.request.urlretrieve(image_url, imageName)
     
     
 
-def detect_waste():
+def detect_waste(logs):
     
     def stream_handler(message):
-    print('event: ' + message["event"]) # put
-    print('path: '  + message["path"]) # /-K7yGTTEp7O549EzTYtI
-    print('data: '  + message["data"]) # {'title': 'Pyrebase', "body": "etc..."}
-    #     getAndDownloadImage('mountains.jpg')
-    #     print('New Image reloaded')
+        print('event: ' + message["event"]) # put
+        print('path: '  + message["path"]) # /-K7yGTTEp7O549EzTYtI
+        print('data: '  + message["data"]) # {'title': 'Pyrebase', "body": "etc..."}
+
+        
+        if (message['data'] == 'IMAGE_UPLOADED'):
+            
+            getAndDownloadImage('mountains.jpg')
+            print('New Image downloaded')
+
+            # Read image
+            image = skimage.io.imread('mountains.jpg')
+
+            # crop image and save it
+            x1, y1 = 700, 800
+            x2, y2 = x1 + 1500, y1 + 1500
+
+            cropped_image = image[x1:x2,y1:y2]
+
+            skimage.io.imsave('cropped_image.png', cropped_image)
+
+            storage.child('images/cropped_image.png').put('cropped_image.png')
+
+            db.child('').update({'message': 'IMAGE_CROPPED'})
+
+            class InferenceConfig(DetritechConfig):
+                # Set batch size to 1 since we'll be running inference on
+                # one image at a time. Batch size = GPU_COUNT * IMAGES_PER_GPU
+                GPU_COUNT = 1
+                IMAGES_PER_GPU = 1
+            config = InferenceConfig()
+
+            model = modellib.MaskRCNN(mode="inference", config=config,
+                                      model_dir=logs)
+
+            weights_path = 'mask_rcnn_detritech_0011.h5'
+
+            model.load_weights(weights_path, by_name=True)
+
+            # Detect objects
+            r = model.detect([cropped_image], verbose=1)[0]
+#             print(r)
+            # Display results
+            fig, ax = plt.subplots() 
+            visualize.display_instances(cropped_image, r['rois'], r['masks'], r['class_ids'], 
+                                        ['BG', 'beton', 'acier', 'bois'], r['scores'], ax=ax,
+                                        title="Predictions")
+            fig.savefig('result.png')
+
+            storage.child('images/result.png').put('result.png')
+            
+            
+            coord = ''
+            for i in range(len(r['rois'])):
+                coord += str(r['rois'][i][0]) + ' ' + str(r['rois'][i][1]) + ' ' + str(r['rois'][i][2]) + ' ' + str(r['rois'][i][3]) + ' '
+                coord += str(r['class_ids'][i])
+                if (i < len(r['rois'])):
+                    coord += '#'
+            
+            db.child('').update({'message': 'IMAGE_PREDICTED', 'coord': coord})
 
     my_stream = db.child("message").stream(stream_handler)
     
@@ -370,58 +428,58 @@ if __name__ == '__main__':
     print("Dataset: ", args.dataset)
     print("Logs: ", args.logs)
 
-    # Configurations
-    if args.command == "train":
-        config = DetritechConfig()
-    else:
-        class InferenceConfig(DetritechConfig):
-            # Set batch size to 1 since we'll be running inference on
-            # one image at a time. Batch size = GPU_COUNT * IMAGES_PER_GPU
-            GPU_COUNT = 1
-            IMAGES_PER_GPU = 1
-        config = InferenceConfig()
-    config.display()
+#     # Configurations
+#     if args.command == "train":
+#         config = DetritechConfig()
+#     else:
+#         class InferenceConfig(DetritechConfig):
+#             # Set batch size to 1 since we'll be running inference on
+#             # one image at a time. Batch size = GPU_COUNT * IMAGES_PER_GPU
+#             GPU_COUNT = 1
+#             IMAGES_PER_GPU = 1
+#         config = InferenceConfig()
+#     config.display()
     
     # Create model
-    if args.command == "train":
-        model = modellib.MaskRCNN(mode="training", config=config,
-                                  model_dir=args.logs)
-    else:
-        model = modellib.MaskRCNN(mode="inference", config=config,
-                                  model_dir=args.logs)
+#     if args.command == "train":
+#         model = modellib.MaskRCNN(mode="training", config=config,
+#                                   model_dir=args.logs)
+#     else:
+#         model = modellib.MaskRCNN(mode="inference", config=config,
+#                                   model_dir=args.logs)
 
     # Select weights file to load
-    if args.weights.lower() == "coco":
-        weights_path = COCO_WEIGHTS_PATH
-        # Download weights file
-        if not os.path.exists(weights_path):
-            utils.download_trained_weights(weights_path)
-    elif args.weights.lower() == "last":
-        # Find last trained weights
-        weights_path = model.find_last()
-    elif args.weights.lower() == "imagenet":
-        # Start from ImageNet trained weights
-        weights_path = model.get_imagenet_weights()
-    else:
-        weights_path = args.weights
+#     if args.weights.lower() == "coco":
+#         weights_path = COCO_WEIGHTS_PATH
+#         # Download weights file
+#         if not os.path.exists(weights_path):
+#             utils.download_trained_weights(weights_path)
+#     elif args.weights.lower() == "last":
+#         # Find last trained weights
+#         weights_path = model.find_last()
+#     elif args.weights.lower() == "imagenet":
+#         # Start from ImageNet trained weights
+#         weights_path = model.get_imagenet_weights()
+#     else:
+#         weights_path = args.weights
 
     # Load weights
-    print("Loading weights ", weights_path)
-    if args.weights.lower() == "coco":
-        # Exclude the last layers because they require a matching
-        # number of classes
-        model.load_weights(weights_path, by_name=True, exclude=[
-            "mrcnn_class_logits", "mrcnn_bbox_fc",
-            "mrcnn_bbox", "mrcnn_mask"])
-    else:
-        model.load_weights(weights_path, by_name=True)
+#     print("Loading weights ", weights_path)
+#     if args.weights.lower() == "coco":
+#         # Exclude the last layers because they require a matching
+#         # number of classes
+#         model.load_weights(weights_path, by_name=True, exclude=[
+#             "mrcnn_class_logits", "mrcnn_bbox_fc",
+#             "mrcnn_bbox", "mrcnn_mask"])
+#     else:
+#         model.load_weights(weights_path, by_name=True)
     
     
     # Train or evaluate
     if args.command == "train":
         train(model)
     elif args.command == "detect":
-        detect_waste()
+        detect_waste(args.logs)
 #     elif args.command == "splash":
 #         detect_and_color_splash(model, image_path=args.image,
 #                                 video_path=args.video)
