@@ -8,7 +8,7 @@ x_ref = pos_ref[0]
 y_ref = pos_ref[1]
 z_ref = pos_ref[2]
 # rayon de la boule
-R = 1300
+R = 1100
 R_2 = R * R
 # coordonnées
 x = 0
@@ -48,7 +48,6 @@ target_i.setPos(pos_i)
 print(str(Pose_2_TxyzRxyz(target_i)))
 robot.MoveL(target_i)
 
-input("Press Enter to continue...")
 
 # on pousse
 pos_i[1] = -sqrt(R_2 - x*x - z*z)
@@ -56,7 +55,6 @@ target_i.setPos(pos_i)
 print(str(Pose_2_TxyzRxyz(target_i)))
 robot.MoveL(target_i)
 
-input("Press Enter to continue...")
 
 # on remonte
 robot.MoveL(target_ref)
