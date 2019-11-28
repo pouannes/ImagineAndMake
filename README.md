@@ -1,8 +1,10 @@
 # Detritech Hackathon
 
 <p align="center">
-  <img src="assets/detritech_robot.gif"/>
-  <em>Partial demo of the hackathon result</em>
+  <img src="assets/detritech_robot.gif"/>]
+  <p align="center">
+    <em>Partial demo of the hackathon result</em>
+  </p>
 </p>
 
 This is the repo of a 1 week hackathon organized at my University (Ecole Centrale de Lille, in France).
