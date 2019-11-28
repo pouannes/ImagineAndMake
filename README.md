@@ -1,5 +1,7 @@
 # Detritech Hackathon
 
+![Detritech robot demo](assets/detritech_robot.gif "Detritech robot demo")
+
 This is the repo of a 1 week hackathon organized at my University (Ecole Centrale de Lille, in France). 
 
 The goal of the challenge was to use [a robot arm](https://www.universal-robots.com/products/ur10-robot/) to solve an issue in the construction industry. Our group project was to make a waste-sorting robot arm.

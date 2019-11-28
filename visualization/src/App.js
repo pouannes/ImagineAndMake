@@ -5,6 +5,16 @@ import app from "firebase/app";
 import "firebase/database";
 import "firebase/storage";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyAx5QHALVtmfATVLiSTB_wnmRqc1cjjdac",
+  authDomain: "detritech-fd3cd.firebaseapp.com",
+  databaseURL: "https://detritech-fd3cd.firebaseio.com",
+  projectId: "detritech-fd3cd",
+  storageBucket: "detritech-fd3cd.appspot.com",
+  messagingSenderId: "626100418454",
+  appId: "1:626100418454:web:af56d895c4c5d6901e0fb7"
+};
+
 class Firebase {
   constructor() {
     app.initializeApp(firebaseConfig);
@@ -61,7 +71,7 @@ function App() {
         .then(url => setOriginalImage(url));
     }
 
-    if (status === "IMAGE_TREATED") {
+    if (status === "IMAGE_PREDICTED") {
       storageRef
         .child("images/cropped_image.png")
         .getDownloadURL()
